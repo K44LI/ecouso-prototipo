@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport: faz o site se ajustar à largura do celular (responsivo) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Protótipo educativo para acompanhar hábitos de consumo consciente de água, energia e alimentos.">
+  <title>Painel | EcoUso</title>
+  <!-- Bootstrap (CDN) e CSS próprio -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons: ícones simples no lugar de emojis -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Aplica o tema salvo ANTES da página aparecer (evita "piscar" claro no modo noturno) -->
+  <script>
+    try {
+      var tema = localStorage.getItem("ecouso_tema_v1");
+      if (!tema && window.matchMedia("(prefers-color-scheme: dark)").matches) tema = "dark";
+      if (tema === "dark") document.documentElement.setAttribute("data-bs-theme", "dark");
+    } catch (e) { /* sem armazenamento: segue o tema claro */ }
+  </script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Fundo escuro atrás do menu aberto (só no celular) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ================= MENU LATERAL ================= -->
+    <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
+      <a class="marca" href="index.html"><span class="marca-logo" aria-hidden="true"><i class="bi bi-recycle"></i></span> EcoUso</a>
+
+      <nav aria-label="Navegação principal">
+        <p class="menu-rotulo">Menu</p>
+        <ul class="menu">
+          <li><a class="menu-link ativo" href="index.html" aria-current="page"><i class="bi bi-speedometer2" aria-hidden="true"></i> Painel</a></li>
+          <li><a class="menu-link" href="registrar.html"><i class="bi bi-plus-circle" aria-hidden="true"></i> Registrar consumo</a></li>
+          <li><a class="menu-link" href="historico.html"><i class="bi bi-clock-history" aria-hidden="true"></i> Histórico</a></li>
+        </ul>
+
+        <p class="menu-rotulo">Recursos</p>
+        <ul class="menu">
+          <li><a class="menu-link" href="historico.html?recurso=%C3%81gua"><i class="bi bi-droplet" aria-hidden="true"></i> Água</a></li>
+          <li><a class="menu-link" href="historico.html?recurso=Energia"><i class="bi bi-lightning-charge" aria-hidden="true"></i> Energia</a></li>
+          <li><a class="menu-link" href="historico.html?recurso=Alimentos"><i class="bi bi-basket" aria-hidden="true"></i> Alimentos</a></li>
+        </ul>
+
+        <p class="menu-rotulo">Geral</p>
+        <ul class="menu">
+          <li><a class="menu-link" href="dicas.html"><i class="bi bi-lightbulb" aria-hidden="true"></i> Dicas e ajuda</a></li>
+          <li><a class="menu-link" href="cadastro.html"><i class="bi bi-person" aria-hidden="true"></i> Meu cadastro</a></li>
+          <li><a class="menu-link" href="dicas.html#privacidade"><i class="bi bi-shield-lock" aria-hidden="true"></i> Privacidade</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- ================= ÁREA DE CONTEÚDO ================= -->
+    <div class="conteudo">
+
+      <!-- Barra superior: botão do menu, abas, busca e usuário -->
+      <header class="topbar">
+        <button class="btn-menu" id="btn-menu" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menu"><i class="bi bi-list" aria-hidden="true"></i></button>
+        <nav class="topbar-abas" aria-label="Atalhos">
+          <a class="ativo" href="index.html">Início</a>
+          <a href="dicas.html">Dicas</a>
+        </nav>
+        <!-- A busca envia o texto para o histórico (historico.html?q=...) -->
+        <form class="busca" action="historico.html" method="get" role="search">
+          <label class="visually-hidden" for="busca-topo">Buscar ação</label>
+          <input id="busca-topo" name="q" type="search" maxlength="100" placeholder="Buscar ação">
+        </form>
+        <!-- Botão do modo noturno (o JavaScript troca o tema e o ícone) -->
+        <button class="btn-tema" id="btn-tema" type="button" aria-pressed="false" aria-label="Ativar modo noturno"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+        <!-- Foto de perfil: ao clicar, abre a página de cadastro -->
+        <a class="usuario" href="cadastro.html" aria-label="Abrir meu cadastro">
+          <span class="avatar" id="usuario-avatar" aria-hidden="true"><i class="bi bi-person"></i></span>
+          <div class="usuario-info"><strong id="usuario-nome">Visitante</strong><br><small id="usuario-sub">Fazer cadastro</small></div>
+        </a>
+      </header>
+
+      <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+      <main class="pagina">
+        <div class="cabecalho-pagina">
+          <div>
+            <h1>Painel de consumo consciente</h1>
+            <p>Acompanhe suas ações para economizar água, energia e alimentos.
+               Total: <strong id="total-geral">0</strong> ação(ões) registrada(s).</p>
+          </div>
+          <div class="acoes-cabecalho">
+            <a class="btn btn-success" href="registrar.html">+ Registrar ação</a>
+            <button class="btn btn-outline-success" id="btn-exemplos" type="button">Carregar exemplos</button>
+            <button class="btn btn-outline-secondary" id="btn-limpar" type="button">Apagar dados</button>
+          </div>
+        </div>
+
+        <!-- Aviso de erro genérico (preenchido pelo JavaScript quando algo falha) -->
+        <div id="aviso-global" class="alert alert-danger" role="alert" hidden></div>
+
+        <!-- SEÇÃO 1: três cartões de resumo (grid do Bootstrap) -->
+        <section aria-label="Resumo por recurso" id="painel-recursos">
+          <div class="row g-3">
+
+            <div class="col-12 col-md-4">
+              <article class="card-eco stat-card" data-recurso="Água">
+                <div class="stat-topo"><span class="stat-icone agua" aria-hidden="true"><i class="bi bi-droplet" aria-hidden="true"></i></span><h3>Água</h3></div>
+                <p class="stat-valor"><span data-campo="total">0</span> <small>ações</small></p>
+                <div class="stat-linha">
+                  <span>Neste mês: <b data-campo="mes">0</b> de <b data-campo="meta">5</b></span>
+                  <span class="selo" data-campo="selo">Faltam 5</span>
+                </div>
+                <div class="progress" role="progressbar" aria-label="Meta mensal de água" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" data-campo="barra" style="width: 0%"></div>
+                </div>
+                <div class="stat-linha"><span>Quantidade somada: <b data-campo="quantidade">0 litros</b></span></div>
+              </article>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <article class="card-eco stat-card" data-recurso="Energia">
+                <div class="stat-topo"><span class="stat-icone energia" aria-hidden="true"><i class="bi bi-lightning-charge" aria-hidden="true"></i></span><h3>Energia</h3></div>
+                <p class="stat-valor"><span data-campo="total">0</span> <small>ações</small></p>
+                <div class="stat-linha">
+                  <span>Neste mês: <b data-campo="mes">0</b> de <b data-campo="meta">5</b></span>
+                  <span class="selo" data-campo="selo">Faltam 5</span>
+                </div>
+                <div class="progress" role="progressbar" aria-label="Meta mensal de energia" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" data-campo="barra" style="width: 0%"></div>
+                </div>
+                <div class="stat-linha"><span>Quantidade somada: <b data-campo="quantidade">0 kWh</b></span></div>
+              </article>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <article class="card-eco stat-card" data-recurso="Alimentos">
+                <div class="stat-topo"><span class="stat-icone alimentos" aria-hidden="true"><i class="bi bi-basket" aria-hidden="true"></i></span><h3>Alimentos</h3></div>
+                <p class="stat-valor"><span data-campo="total">0</span> <small>ações</small></p>
+                <div class="stat-linha">
+                  <span>Neste mês: <b data-campo="mes">0</b> de <b data-campo="meta">5</b></span>
+                  <span class="selo" data-campo="selo">Faltam 5</span>
+                </div>
+                <div class="progress" role="progressbar" aria-label="Meta mensal de alimentos" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" data-campo="barra" style="width: 0%"></div>
+                </div>
+                <div class="stat-linha"><span>Quantidade somada: <b data-campo="quantidade">0 kg</b></span></div>
+              </article>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- SEÇÃO 2: gráfico de barras + últimas ações -->
+        <div class="row g-3 mt-1">
+          <section class="col-12 col-xl-7" aria-labelledby="grafico-titulo">
+            <div class="card-eco">
+              <div class="card-eco-topo">
+                <span class="icone-quadrado" aria-hidden="true"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></span>
+                <div>
+                  <h2 id="grafico-titulo">Ações por recurso</h2>
+                  <p>Registradas neste mês comparadas com a meta mensal</p>
+                </div>
+              </div>
+              <!-- O JavaScript desenha as barras dentro desta div -->
+              <div id="grafico" class="grafico" role="img" aria-label="Gráfico de barras das ações por recurso"></div>
+              <ul class="legenda">
+                <li><i></i>Registradas no mês</li>
+                <li><i class="meta"></i>Meta mensal</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="col-12 col-xl-5" aria-labelledby="ultimas-titulo">
+            <div class="card-eco">
+              <div class="card-eco-topo">
+                <span class="icone-quadrado" aria-hidden="true"><i class="bi bi-clock" aria-hidden="true"></i></span>
+                <div><h2 id="ultimas-titulo">Últimas ações</h2><p>As 5 mais recentes</p></div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead><tr><th scope="col">Data</th><th scope="col">Recurso</th><th scope="col">Ação</th></tr></thead>
+                  <tbody id="ultimas-acoes"></tbody>
+                </table>
+              </div>
+              <a href="historico.html" class="btn btn-outline-success btn-sm">Ver histórico completo</a>
+            </div>
+          </section>
+        </div>
+
+        <p class="nota-privacidade">Privacidade: o protótipo pede apenas o mínimo (apelido, perfil de uso e e-mail opcional no cadastro). Não solicita endereço, documentos nem senha. Os dados são fictícios ou informados pelo próprio usuário e ficam armazenados apenas neste navegador.</p>
+      </main>
+
+      <footer class="rodape">EcoUso — protótipo acadêmico de tecnologia cidadã • Dados demonstrativos, sem finalidade comercial.</footer>
+    </div>
+  </div>
+
+  <!-- Scripts: Bootstrap (CDN) e JavaScript próprio -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Cadastro (foto de perfil): precisa vir depois do app.js -->
+  <script src="js/cadastro.js"></script>
+</body>
+</html>

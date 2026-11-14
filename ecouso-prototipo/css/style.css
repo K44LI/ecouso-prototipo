@@ -1,0 +1,715 @@
+/* =====================================================================
+   EcoUso — css/style.css
+   Estilos próprios do protótipo (o Bootstrap 5.3 é carregado antes).
+   Abordagem MOBILE FIRST: o CSS base vale para o celular e as
+   media queries (768px, 992px e 1200px) ampliam o layout.
+
+   ÍNDICE
+   1. Variáveis (cores, medidas)
+   2. Base
+   3. Estrutura geral (menu lateral + conteúdo)  → Flexbox / Grid
+   4. Menu lateral
+   5. Barra superior (topbar)
+   6. Conteúdo, títulos e cartões
+   7. Cartões de recurso (Água / Energia / Alimentos)
+   8. Gráfico de barras
+   9. Formulários
+  10. Histórico (grid de cartões de registro)
+  11. Painel de registro de atividades
+  12. Rodapé e avisos
+  13. Cadastro, ícones e botão de tema
+  14. MODO NOTURNO (variáveis escuras)
+  15. Media queries (tablet 768px, desktop 992px e 1200px)
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. VARIÁVEIS — troque as cores aqui e o site inteiro muda
+   ===================================================================== */
+:root {
+  --verde: #10b981;
+  --verde-escuro: #059669;
+  --verde-claro: #d1fae5;
+  --ciano: #06b6d4;
+  --ciano-claro: #cffafe;
+  --azul: #3b82f6;
+  --azul-claro: #dbeafe;
+  --amarelo: #f59e0b;
+  --amarelo-claro: #fef3c7;
+  --vermelho: #ef4444;
+  --vermelho-claro: #fee2e2;
+  --texto: #111827;
+  --texto-suave: #6b7280;
+  --fundo: #f3f6fb;
+  --branco: #ffffff;
+  --borda: #e5e7eb;
+  --sombra: 0 2px 12px rgba(17, 24, 39, 0.07);
+  --raio: 14px;
+  --largura-menu: 260px;
+
+  /* Cores que mudam no modo noturno */
+  --verde-texto: #065f46;
+  --amarelo-texto: #92400e;
+  --link: #059669;
+  --menu-texto: #374151;
+  --linha-grafico: #f1f5f9;
+}
+
+
+/* =====================================================================
+   2. BASE
+   ===================================================================== */
+body {
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  font-size: 0.95rem;
+}
+
+a { color: var(--link); }
+
+/* Foco visível para quem navega pelo teclado (acessibilidade) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(16, 185, 129, 0.55);
+  outline-offset: 2px;
+}
+
+
+/* =====================================================================
+   3. ESTRUTURA GERAL
+   No celular o menu lateral fica escondido (fora da tela) e abre
+   por cima do conteúdo. No desktop (≥ 992px) vira uma coluna fixa
+   usando CSS Grid (veja a seção 13).
+   ===================================================================== */
+.app { min-height: 100vh; }
+
+/* min-width:0 evita que tabelas/gráficos "estourem" a largura da tela */
+.conteudo {
+  min-width: 0;
+  display: flex;               /* Flexbox: topbar, main e footer em coluna */
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.pagina {
+  flex: 1;                      /* empurra o rodapé para o fim da tela */
+  padding: 1rem;
+}
+
+
+/* =====================================================================
+   4. MENU LATERAL (sidebar)
+   ===================================================================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--largura-menu);
+  background: var(--branco);
+  border-right: 1px solid var(--borda);
+  padding: 1.25rem 1rem;
+  overflow-y: auto;
+  z-index: 1040;
+  transform: translateX(-100%);       /* escondido no celular */
+  transition: transform 0.25s ease;
+}
+
+.sidebar.aberto { transform: translateX(0); }   /* classe aplicada pelo JS */
+
+/* Fundo escurecido atrás do menu aberto no celular */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  z-index: 1030;
+}
+.sidebar-overlay.ativo { display: block; }
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--borda);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.marca-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--verde);
+  color: var(--branco);
+}
+
+.menu-rotulo {
+  margin: 1.25rem 0 0.5rem;
+  padding-left: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  color: var(--menu-texto);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.menu-link:hover { background: var(--fundo); }
+
+/* Item da página atual: pílula verde, igual ao modelo EcoTrack */
+.menu-link.ativo {
+  background: var(--verde);
+  color: var(--branco);
+}
+
+
+/* =====================================================================
+   5. BARRA SUPERIOR (topbar)
+   ===================================================================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--branco);
+  border-bottom: 1px solid var(--borda);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.btn-menu {
+  border: 1px solid var(--borda);
+  background: var(--branco);
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--texto);
+}
+
+.topbar-abas { display: none; gap: 1rem; }     /* só aparece a partir do tablet */
+.topbar-abas a {
+  text-decoration: none;
+  color: var(--texto-suave);
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+.topbar-abas a.ativo { color: var(--link); }
+
+.busca { flex: 1; }
+.busca input {
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+.usuario { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: inherit; }
+.usuario:hover .avatar { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35); }
+.usuario-info { display: none; line-height: 1.2; }   /* só aparece a partir do tablet */
+.usuario-info small { color: var(--texto-suave); }
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--verde-claro);
+  color: var(--verde-texto);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+
+/* =====================================================================
+   6. CONTEÚDO, TÍTULOS E CARTÕES
+   ===================================================================== */
+.cabecalho-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cabecalho-pagina h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.cabecalho-pagina p { margin: 0; color: var(--texto-suave); }
+
+.acoes-cabecalho { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Cartão branco genérico usado em todo o site */
+.card-eco {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 1.1rem;
+  height: 100%;
+}
+
+.card-eco-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.card-eco-topo h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+.card-eco-topo p { margin: 0; font-size: 0.8rem; color: var(--texto-suave); }
+
+.icone-quadrado {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--azul-claro);
+  flex-shrink: 0;
+}
+
+/* Selo (badge) pequeno */
+.selo {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--amarelo-claro);
+  color: var(--amarelo-texto);
+}
+.selo.ok { background: var(--verde-claro); color: var(--verde-texto); }
+
+.nota-privacidade {
+  margin-top: 1.25rem;
+  padding: 0.8rem 1rem;
+  border-left: 4px solid var(--verde);
+  background: var(--branco);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+
+/* =====================================================================
+   7. CARTÕES DE RECURSO (Água, Energia, Alimentos)
+   ===================================================================== */
+.stat-topo { display: flex; align-items: center; gap: 0.7rem; }
+.stat-topo h3 { font-size: 0.95rem; font-weight: 600; margin: 0; }
+
+.stat-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+}
+.stat-icone.agua { background: var(--ciano-claro); }
+.stat-icone.energia { background: var(--amarelo-claro); }
+.stat-icone.alimentos { background: var(--verde-claro); }
+
+.stat-valor {
+  margin: 0.6rem 0 0.8rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-valor small { font-size: 0.8rem; font-weight: 400; color: var(--texto-suave); }
+
+.stat-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+
+/* Barra de progresso (Bootstrap) personalizada com a cor do recurso */
+.stat-card .progress { height: 8px; background: var(--borda); }
+.stat-card .progress-bar { background: var(--verde); }
+.stat-card[data-recurso="Água"] .progress-bar { background: var(--ciano); }
+.stat-card[data-recurso="Energia"] .progress-bar { background: var(--amarelo); }
+
+
+/* =====================================================================
+   8. GRÁFICO DE BARRAS (montado pelo JavaScript, sem biblioteca)
+   ===================================================================== */
+.grafico {
+  display: flex;                      /* Flexbox: um grupo por recurso */
+  justify-content: space-around;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 240px;
+  padding-top: 0.5rem;
+  border-bottom: 1px solid var(--borda);
+  /* Linhas horizontais de referência ao fundo */
+  background-image: repeating-linear-gradient(to top, transparent 0, transparent 47px, var(--linha-grafico) 47px, var(--linha-grafico) 48px);
+}
+
+.grafico-grupo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  align-items: center;
+}
+
+.grafico-barras {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  height: calc(100% - 1.75rem);       /* altura fixa para as % das barras funcionarem */
+}
+
+.grafico-barra {
+  position: relative;
+  width: min(34px, 30%);
+  min-height: 2px;
+  border-radius: 6px 6px 0 0;
+  background: var(--ciano);
+  transition: height 0.4s ease;
+}
+.grafico-barra.meta { background: var(--verde); }
+
+.grafico-valor {
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  color: var(--texto-suave);
+}
+
+.grafico-nome {
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+
+.legenda {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+.legenda i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 0.35rem;
+  border-radius: 3px;
+  background: var(--ciano);
+}
+.legenda i.meta { background: var(--verde); }
+
+
+/* =====================================================================
+   9. FORMULÁRIOS (campos do Bootstrap + ajustes)
+   ===================================================================== */
+.form-label { font-weight: 500; }
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.2);
+}
+
+.btn-success {
+  --bs-btn-bg: var(--verde);
+  --bs-btn-border-color: var(--verde);
+  --bs-btn-hover-bg: var(--verde-escuro);
+  --bs-btn-hover-border-color: var(--verde-escuro);
+  --bs-btn-active-bg: var(--verde-escuro);
+  --bs-btn-active-border-color: var(--verde-escuro);
+}
+.btn-outline-success {
+  --bs-btn-color: var(--link);
+  --bs-btn-border-color: var(--verde);
+  --bs-btn-hover-bg: var(--verde);
+  --bs-btn-hover-border-color: var(--verde);
+}
+
+.form-feedback:empty { display: none; }
+
+
+/* =====================================================================
+   10. HISTÓRICO — lista em CSS GRID
+   1 coluna no celular, 2 no tablet, 3 no desktop grande
+   ===================================================================== */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.filtros .campo { min-width: 180px; flex: 1; }
+.contador { margin: 0 0 0.75rem; font-size: 0.85rem; color: var(--texto-suave); }
+
+.lista-registros {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.registro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-top: 4px solid var(--verde);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 1rem;
+}
+.registro.agua { border-top-color: var(--ciano); }
+.registro.energia { border-top-color: var(--amarelo); }
+.registro.alimentos { border-top-color: var(--verde); }
+
+.registro-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+.registro-recurso { font-weight: 600; }
+.registro-data { color: var(--texto-suave); }
+.registro-acao { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.registro-qtd { margin: 0; font-size: 0.85rem; color: var(--texto-suave); }
+
+.registro-botoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.estado-vazio {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: var(--branco);
+  border: 2px dashed var(--borda);
+  border-radius: var(--raio);
+}
+
+
+/* =====================================================================
+   11. PAINEL DE REGISTRO DE ATIVIDADES
+   ===================================================================== */
+.painel-log table { margin: 0; font-size: 0.82rem; }
+.painel-log th { color: var(--texto-suave); font-weight: 600; white-space: nowrap; }
+.painel-log td { overflow-wrap: anywhere; }
+.painel-log .tabela-rolagem { max-height: 360px; overflow-y: auto; }
+
+
+/* =====================================================================
+   12. RODAPÉ E AVISOS
+   ===================================================================== */
+.rodape {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  border-top: 1px solid var(--borda);
+  background: var(--branco);
+}
+
+.accordion-button:not(.collapsed) {
+  background: var(--verde-claro);
+  color: var(--verde-texto);
+}
+
+
+/* =====================================================================
+   13. CADASTRO, ÍCONES E BOTÃO DE TEMA
+   ===================================================================== */
+
+/* Ícones (Bootstrap Icons) */
+.bi { line-height: 1; }
+.menu-link .bi { font-size: 1.1rem; width: 1.25rem; text-align: center; }
+.marca-logo .bi { font-size: 1.2rem; }
+.stat-icone .bi { font-size: 1.1rem; }
+.stat-icone.agua .bi { color: #0891b2; }
+.stat-icone.energia .bi { color: #d97706; }
+.stat-icone.alimentos .bi { color: #059669; }
+.icone-quadrado .bi { color: var(--azul); font-size: 1.05rem; }
+.icone-recurso { margin-right: 0.3rem; }
+.icone-recurso.agua { color: #0891b2; }
+.icone-recurso.energia { color: #d97706; }
+.icone-recurso.alimentos { color: #059669; }
+
+/* Botão do modo noturno na barra superior */
+.btn-tema {
+  border: 1px solid var(--borda);
+  background: var(--branco);
+  color: var(--texto);
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.btn-tema:hover { background: var(--fundo); }
+
+/* Lista dos dados do cadastro salvos */
+.cadastro-dados { margin: 0; }
+.dado-linha {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--borda);
+}
+.dado-linha dt { font-weight: 600; color: var(--texto-suave); }
+.dado-linha dd { margin: 0; overflow-wrap: anywhere; }
+
+/* A mensagem do checkbox aparece quando o campo está inválido */
+.form-check .invalid-feedback { margin-top: 0.35rem; }
+
+
+/* =====================================================================
+   14. MODO NOTURNO
+   O Bootstrap 5.3 já escurece os próprios componentes quando o <html>
+   recebe data-bs-theme="dark". Aqui trocamos as nossas variáveis.
+   ===================================================================== */
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --verde-claro: rgba(16, 185, 129, 0.18);
+  --ciano-claro: rgba(6, 182, 212, 0.18);
+  --azul-claro: rgba(59, 130, 246, 0.2);
+  --amarelo-claro: rgba(245, 158, 11, 0.18);
+  --vermelho-claro: rgba(239, 68, 68, 0.2);
+  --texto: #e5e7eb;
+  --texto-suave: #9ca3af;
+  --fundo: #0f172a;
+  --branco: #1e293b;          /* fundo dos cartões e do menu */
+  --borda: #334155;
+  --sombra: 0 2px 12px rgba(0, 0, 0, 0.35);
+  --verde-texto: #6ee7b7;
+  --amarelo-texto: #fcd34d;
+  --link: #34d399;
+  --menu-texto: #cbd5e1;
+  --linha-grafico: #2a3a52;
+
+  --bs-body-bg: #0f172a;
+  --bs-body-color: #e5e7eb;
+  --bs-border-color: #334155;
+}
+
+[data-bs-theme="dark"] .modal-content { background: var(--branco); }
+[data-bs-theme="dark"] .menu-link.ativo { color: #ffffff; }
+[data-bs-theme="dark"] .stat-icone.agua .bi,
+[data-bs-theme="dark"] .icone-recurso.agua { color: #22d3ee; }
+[data-bs-theme="dark"] .stat-icone.energia .bi,
+[data-bs-theme="dark"] .icone-recurso.energia { color: #fbbf24; }
+[data-bs-theme="dark"] .stat-icone.alimentos .bi,
+[data-bs-theme="dark"] .icone-recurso.alimentos { color: #34d399; }
+
+
+/* =====================================================================
+   15. MEDIA QUERIES — testadas em 3 larguras:
+       celular 375px (CSS base) • tablet 768px • desktop 1366px
+   ===================================================================== */
+
+/* ---------- TABLET (a partir de 768px) ---------- */
+@media (min-width: 768px) {
+  .pagina { padding: 1.5rem; }
+  .topbar { padding: 0.75rem 1.5rem; }
+  .topbar-abas { display: flex; }
+  .usuario-info { display: block; }
+  .busca { max-width: 360px; margin-left: auto; }
+
+  .cabecalho-pagina h1 { font-size: 1.75rem; }
+
+  /* Cartões do histórico lado a lado */
+  .lista-registros { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---------- DESKTOP (a partir de 992px) ---------- */
+@media (min-width: 992px) {
+  /* Grid de 2 colunas: menu fixo + conteúdo */
+  .app {
+    display: grid;
+    grid-template-columns: var(--largura-menu) 1fr;
+  }
+
+  /* O menu deixa de ser "gaveta" e passa a ocupar a coluna da esquerda */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transform: none;
+    z-index: auto;
+  }
+
+  .btn-menu,
+  .sidebar-overlay { display: none !important; }   /* não precisa mais de botão */
+}
+
+/* ---------- DESKTOP GRANDE (a partir de 1200px) ---------- */
+@media (min-width: 1200px) {
+  .pagina { padding: 2rem 2.5rem; }
+  .topbar { padding: 0.75rem 2.5rem; }
+  .lista-registros { grid-template-columns: repeat(3, 1fr); }
+  .grafico { height: 280px; }
+}
+
+/* Respeita quem prefere menos animações */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .grafico-barra { transition: none; }
+}

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cadastro do usuário do EcoUso. Os dados ficam salvos apenas neste navegador.">
+  <title>Meu cadastro | EcoUso</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons: ícones simples no lugar de emojis -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Aplica o tema salvo ANTES da página aparecer (evita "piscar" claro no modo noturno) -->
+  <script>
+    try {
+      var tema = localStorage.getItem("ecouso_tema_v1");
+      if (!tema && window.matchMedia("(prefers-color-scheme: dark)").matches) tema = "dark";
+      if (tema === "dark") document.documentElement.setAttribute("data-bs-theme", "dark");
+    } catch (e) { /* sem armazenamento: segue o tema claro */ }
+  </script>
+</head>
+<body>
+  <div class="app">
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ================= MENU LATERAL ================= -->
+    <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
+      <a class="marca" href="index.html"><span class="marca-logo" aria-hidden="true"><i class="bi bi-recycle"></i></span> EcoUso</a>
+
+      <nav aria-label="Navegação principal">
+        <p class="menu-rotulo">Menu</p>
+        <ul class="menu">
+          <li><a class="menu-link" href="index.html"><i class="bi bi-speedometer2" aria-hidden="true"></i> Painel</a></li>
+          <li><a class="menu-link" href="registrar.html"><i class="bi bi-plus-circle" aria-hidden="true"></i> Registrar consumo</a></li>
+          <li><a class="menu-link" href="historico.html"><i class="bi bi-clock-history" aria-hidden="true"></i> Histórico</a></li>
+        </ul>
+
+        <p class="menu-rotulo">Recursos</p>
+        <ul class="menu">
+          <li><a class="menu-link" href="historico.html?recurso=%C3%81gua"><i class="bi bi-droplet" aria-hidden="true"></i> Água</a></li>
+          <li><a class="menu-link" href="historico.html?recurso=Energia"><i class="bi bi-lightning-charge" aria-hidden="true"></i> Energia</a></li>
+          <li><a class="menu-link" href="historico.html?recurso=Alimentos"><i class="bi bi-basket" aria-hidden="true"></i> Alimentos</a></li>
+        </ul>
+
+        <p class="menu-rotulo">Geral</p>
+        <ul class="menu">
+          <li><a class="menu-link" href="dicas.html"><i class="bi bi-lightbulb" aria-hidden="true"></i> Dicas e ajuda</a></li>
+          <li><a class="menu-link ativo" href="cadastro.html" aria-current="page"><i class="bi bi-person" aria-hidden="true"></i> Meu cadastro</a></li>
+          <li><a class="menu-link" href="dicas.html#privacidade"><i class="bi bi-shield-lock" aria-hidden="true"></i> Privacidade</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="conteudo">
+
+      <!-- ================= BARRA SUPERIOR ================= -->
+      <header class="topbar">
+        <button class="btn-menu" id="btn-menu" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menu"><i class="bi bi-list" aria-hidden="true"></i></button>
+        <nav class="topbar-abas" aria-label="Atalhos">
+          <a href="index.html">Início</a>
+          <a href="dicas.html">Dicas</a>
+        </nav>
+        <form class="busca" action="historico.html" method="get" role="search">
+          <label class="visually-hidden" for="busca-topo">Buscar ação</label>
+          <input id="busca-topo" name="q" type="search" maxlength="100" placeholder="Buscar ação">
+        </form>
+        <!-- Botão do modo noturno (o JavaScript troca o tema e o ícone) -->
+        <button class="btn-tema" id="btn-tema" type="button" aria-pressed="false" aria-label="Ativar modo noturno"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+        <!-- Foto de perfil: ao clicar, abre a página de cadastro -->
+        <a class="usuario" href="cadastro.html" aria-label="Abrir meu cadastro">
+          <span class="avatar" id="usuario-avatar" aria-hidden="true"><i class="bi bi-person"></i></span>
+          <div class="usuario-info"><strong id="usuario-nome">Visitante</strong><br><small id="usuario-sub">Fazer cadastro</small></div>
+        </a>
+      </header>
+
+      <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+      <main class="pagina">
+        <div class="cabecalho-pagina">
+          <div>
+            <h1>Meu cadastro</h1>
+            <p>Crie ou atualize seu perfil. Os dados ficam guardados neste navegador.</p>
+          </div>
+        </div>
+
+        <div id="aviso-global" class="alert alert-danger" role="alert" hidden></div>
+
+        <div class="row g-3">
+
+          <!-- FORMULÁRIO DE CADASTRO -->
+          <section class="col-12 col-xl-6" aria-labelledby="cadastro-titulo">
+            <div class="card-eco">
+              <h2 id="cadastro-titulo" class="h5 mb-3">Dados do cadastro</h2>
+
+              <!-- novalidate: o JavaScript mostra as mensagens na tela; os atributos
+                   required/minlength/maxlength/type continuam como validação nativa. -->
+              <form id="cadastro-form" novalidate>
+
+                <div class="mb-3 campo">
+                  <label for="cad-nome" class="form-label">Nome ou apelido *</label>
+                  <input class="form-control" id="cad-nome" name="nome" type="text" minlength="2" maxlength="50" required
+                         autocomplete="nickname" placeholder="Ex.: Vivi">
+                  <div class="form-text">De 2 a 50 caracteres. Pode ser um apelido ou nome fictício.</div>
+                  <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3 campo">
+                  <label for="cad-email" class="form-label">E-mail (opcional)</label>
+                  <input class="form-control" id="cad-email" name="email" type="email" maxlength="100"
+                         autocomplete="email" placeholder="Ex.: exemplo@email.com">
+                  <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3 campo">
+                  <label for="cad-perfil" class="form-label">Como você usa o EcoUso? *</label>
+                  <select class="form-select" id="cad-perfil" name="perfil" required>
+                    <option value="">Selecione uma opção</option>
+                    <option value="Moradia">Moradia (casa ou apartamento)</option>
+                    <option value="Pequeno comércio">Pequeno comércio</option>
+                    <option value="Escola ou associação">Escola ou associação</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+
+                <!-- Consentimento (LGPD) -->
+                <div class="mb-4 campo">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="cad-consentimento" name="consentimento" required>
+                    <label class="form-check-label" for="cad-consentimento">
+                      Concordo em guardar estes dados apenas neste navegador, para uso do protótipo. *
+                    </label>
+                    <div class="invalid-feedback"></div>
+                  </div>
+                </div>
+
+                <button class="btn btn-success btn-lg" type="submit">Salvar cadastro</button>
+
+                <div id="cadastro-feedback" class="form-feedback mt-3" role="status" aria-live="polite"></div>
+
+                <p class="nota-privacidade mb-0"><i class="bi bi-shield-lock" aria-hidden="true"></i> Não pedimos senha, endereço, telefone nem documentos. Prefira dados fictícios ou gerais.</p>
+              </form>
+            </div>
+          </section>
+
+          <!-- DADOS SALVOS: lista preenchida pelo js/cadastro.js -->
+          <section class="col-12 col-xl-6" aria-labelledby="dados-titulo">
+            <div class="card-eco">
+              <div class="card-eco-topo">
+                <span class="icone-quadrado" aria-hidden="true"><i class="bi bi-person-vcard"></i></span>
+                <div>
+                  <h2 id="dados-titulo">Dados guardados</h2>
+                  <p>É o que está salvo neste navegador</p>
+                </div>
+              </div>
+
+              <dl id="cadastro-dados" class="cadastro-dados" aria-live="polite">
+                <p class="text-secondary mb-0">Nenhum cadastro salvo ainda.</p>
+              </dl>
+
+              <div class="acoes-cabecalho mt-3">
+                <button id="btn-excluir-cadastro" class="btn btn-outline-danger" type="button" disabled>
+                  <i class="bi bi-trash" aria-hidden="true"></i> Excluir cadastro
+                </button>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <footer class="rodape">EcoUso — protótipo acadêmico de tecnologia cidadã.</footer>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Cadastro (foto de perfil): precisa vir depois do app.js -->
+  <script src="js/cadastro.js"></script>
+</body>
+</html>
