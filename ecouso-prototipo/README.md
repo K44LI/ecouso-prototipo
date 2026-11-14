@@ -46,7 +46,7 @@ Não é necessário instalar dependências ou configurar banco de dados. Para te
 
 ## 6. Estrutura de pastas
 
-```text
+
 ecouso-prototipo/
 ├── index.html
 ├── registrar.html
@@ -54,12 +54,34 @@ ecouso-prototipo/
 ├── dicas.html
 ├── cadastro.html
 ├── README.md
+├── imagens/
+│   ├── pagina-inicial.png
+│   ├── registro.png
+│   ├── historico.png
+│   ├── dicas.png
+│   └── cadastro.png
 ├── css/
 │   └── style.css
 └── js/
     ├── app.js
     └── cadastro.js
-```
+    
+## Telas do projeto
+
+### Página inicial
+![Página inicial do EcoUso](./imagens/pagina-inicial.png)
+
+### Página de registro
+![Página de registro do EcoUso](./imagens/registro.png)
+
+### Página de histórico
+![Página de histórico do EcoUso](./imagens/historico.png)
+
+### Página de dicas
+![Página de dicas do EcoUso](./imagens/dicas.png)
+
+### Página de cadastro
+![Página de cadastro do EcoUso](./imagens/cadastro.png)
 
 ## 7. Funcionalidades e operações JavaScript
 
