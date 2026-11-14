@@ -65,23 +65,23 @@ ecouso-prototipo/
 └── js/
     ├── app.js
     └── cadastro.js
-    
+
 ## Telas do projeto
 
 ### Página inicial
-![Página inicial do EcoUso](./imagens/pagina-inicial.png)
+![Página inicial do EcoUso](./imagem/pagina-inicial.png)
 
 ### Página de registro
-![Página de registro do EcoUso](./imagens/registro.png)
+![Página de registro do EcoUso](./imagem/registro.png)
 
 ### Página de histórico
-![Página de histórico do EcoUso](./imagens/historico.png)
+![Página de histórico do EcoUso](./imagem/historico.png)
 
 ### Página de dicas
-![Página de dicas do EcoUso](./imagens/dicas.png)
+![Página de dicas do EcoUso](./imagem/dicas.png)
 
 ### Página de cadastro
-![Página de cadastro do EcoUso](./imagens/cadastro.png)
+![Página de cadastro do EcoUso](./imagem/cadastro.png)
 
 ## 7. Funcionalidades e operações JavaScript
 
